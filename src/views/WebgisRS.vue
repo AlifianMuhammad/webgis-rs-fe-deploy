@@ -10,30 +10,10 @@
           background-color: whitesmoke;
         "
       ></div>
-      <!-- <Navbar /> -->
+
       <div class="container">
         <div class="button">
-          <n-space vertical style="width: 200px" round type="primary">
-            <n-select
-              placeholder="Find Specialist or Clinic"
-              filterable
-              :options="spesialisListValue"
-              @update:value="findSpecialist"
-            />
-          </n-space>
-        </div>
-        <div class="button">
-          <n-space vertical style="width: 200px" round type="primary">
-            <n-select
-              placeholder="Find Hospital"
-              filterable
-              :options="rumahSakitListValue"
-              @update:value="findRS"
-            />
-          </n-space>
-        </div>
-        <div class="button">
-          <n-space vertical style="width: 200px" round type="primary">
+          <n-space vertical style="width: 300px" round type="primary">
             <n-select
               placeholder="Closest Hospital"
               filterable
@@ -43,6 +23,31 @@
           </n-space>
         </div>
       </div>
+      <div class="container">
+        <div class="button">
+          <n-space vertical style="width: 300px" round type="primary">
+            <n-select
+              placeholder="Find Specialist or Clinic"
+              filterable
+              :options="spesialisListValue"
+              @update:value="findSpecialist"
+            />
+          </n-space>
+        </div>
+      </div>
+      <div class="container">
+        <div class="button">
+          <n-space vertical style="width: 300px" round type="primary">
+            <n-select
+              placeholder="Find Hospital"
+              filterable
+              :options="rumahSakitListValue"
+              @update:value="findRS"
+            />
+          </n-space>
+        </div>
+      </div>
+
       <div class="TableData">
         <!-- <DataTable :value="rs_coordinate">
           <Column field="rs" header="Rumah Sakit"> </Column>
