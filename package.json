@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "npm run serve",
-    "build": "npm run build",
-    "start": "npm install && npm run build"
+    "start": "node server.js",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
   },
   "dependencies": {
     "@babel/core": "^7.18.9",
