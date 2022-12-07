@@ -407,13 +407,13 @@ export default {
         }),
       });
 
-      let layer = new TileLayer({
-        source: new ol.source.TileSuperMapRest({
-          url: url,
-          wrapX: true,
-        }),
-        projection: "EPSG:4326",
-      });
+      // let layer = new TileLayer({
+      //   source: new ol.source.TileSuperMapRest({
+      //     url: url,
+      //     wrapX: true,
+      //   }),
+      //   projection: "EPSG:4326",
+      // });
 
       let bingMapLayer = new TileLayer({
         visible: true,
