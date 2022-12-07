@@ -66,6 +66,15 @@ import { BingMaps, Vector } from "ol/source";
 import { getDistance } from "ol/sphere";
 import VectorSource from "ol/source/Vector";
 import { Vector as VectorLayer } from "ol/layer";
+import {
+  FeatureService,
+  GetFeaturesBySQLParameters,
+  TileSuperMapRest,
+  TransportationAnalystResultSetting,
+  TransportationAnalystParameter,
+  FindClosestFacilitiesParameters,
+  NetworkAnalystService,
+} from "@supermap/iclient-ol";
 import { GeoJSON } from "ol/format";
 import { Icon, Style, Stroke } from "ol/style";
 import { onMounted, ref, shallowRef, onUpdated } from "vue";
@@ -297,7 +306,7 @@ export default {
 
       eventLayer.setStyle(eventIcon);
 
-      const resultSetting = new ol.supermap.TransportationAnalystResultSetting({
+      const resultSetting = new TransportationAnalystResultSetting({
         returnEdgeFeatures: true,
         returnEdgeGeometry: true,
         returnEdgeIDs: true,
@@ -309,7 +318,7 @@ export default {
       });
       // console.log(resultSetting);
 
-      const analystParameter = new ol.supermap.TransportationAnalystParameter({
+      const analystParameter = new TransportationAnalystParameter({
         resultSetting: resultSetting,
         weightFieldName: "SmLength",
       });
@@ -336,7 +345,7 @@ export default {
         convertToArrayOfObjects(featuresCoordinates); //FUNCTION
 
       const findClosestFacilitiesParameters =
-        new ol.supermap.FindClosestFacilitiesParameters({
+        new FindClosestFacilitiesParameters({
           event: eventPointString,
           expectFacilityCount: 1,
           facilities: featuresCoordinatesObject,
@@ -345,7 +354,7 @@ export default {
         });
       // console.log(findClosestFacilitiesParameters);
 
-      new ol.supermap.NetworkAnalystService(
+      new NetworkAnalystService(
         "https://iserver.supermap.id/iserver/services/transportationAnalyst-SpatialDataWebGISRS/rest/networkanalyst/Data_WebGIS_Network@Data_WebGIS"
       ).findClosestFacilities(
         findClosestFacilitiesParameters,
@@ -407,13 +416,13 @@ export default {
         }),
       });
 
-      // let layer = new TileLayer({
-      //   source: new ol.source.TileSuperMapRest({
-      //     url: url,
-      //     wrapX: true,
-      //   }),
-      //   projection: "EPSG:4326",
-      // });
+      let layer = new TileLayer({
+        source: new TileSuperMapRest({
+          url: url,
+          wrapX: true,
+        }),
+        projection: "EPSG:4326",
+      });
 
       let bingMapLayer = new TileLayer({
         visible: true,
@@ -426,7 +435,7 @@ export default {
       map.value.addLayer(bingMapLayer);
       map.value.addLayer(resultLayer);
 
-      const sqlParam = new ol.supermap.GetFeaturesBySQLParameters({
+      const sqlParam = new GetFeaturesBySQLParameters({
         toIndex: 26,
         queryParameter: {
           name: "RS@Data_WebGIS",
@@ -435,7 +444,7 @@ export default {
         datasetNames: ["Data_WebGIS:RS"],
       });
 
-      new ol.supermap.FeatureService(
+      new FeatureService(
         "https://iserver.supermap.id/iserver/services/data-SpatialDataWebGISRS-3/rest/data"
       ).getFeaturesBySQL(sqlParam, function (serviceResult) {
         // console.log(serviceResult);
