@@ -58,7 +58,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import Map from "ol/Map";
 import Feature from "ol/Feature";
 import View from "ol/View";
