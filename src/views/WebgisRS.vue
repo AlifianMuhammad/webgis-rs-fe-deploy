@@ -48,15 +48,10 @@
         </div>
       </div>
 
-      <div class="TableData">
-        <!-- <DataTable :value="rs_coordinate">
-          <Column field="rs" header="Rumah Sakit"> </Column>
-          <Column field="coordinates" header="Jarak">
-            <template #body="slotProps">
-              {{ slotProps.data.coordinates }}
-            </template>
-          </Column>
-        </DataTable> -->
+      <div>
+        <n-space>
+          <n-button type="success"> Isi Form Kuesioner </n-button>
+        </n-space>
       </div>
     </div>
   </div>
