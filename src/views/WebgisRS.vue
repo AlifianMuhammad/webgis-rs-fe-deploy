@@ -13,10 +13,11 @@
 
       <div class="container">
         <div class="button">
-          <n-space vertical style="width: 300px" round type="primary">
+          <n-space vertical style="width: 310px" round type="primary">
             <n-select
-              placeholder="Closest Hospital"
+              placeholder="Rumah Sakit Terdekat dengan Spesialis..."
               filterable
+              clearable
               :options="spesialisListValue"
               @update:value="closestRS"
             />
@@ -25,9 +26,10 @@
       </div>
       <div class="container">
         <div class="button">
-          <n-space vertical style="width: 300px" round type="primary">
+          <n-space vertical style="width: 310px" round type="primary">
             <n-select
-              placeholder="Find Specialist or Clinic"
+              placeholder="Cari Rumah Sakit dengan Spesialis..."
+              clearable
               filterable
               :options="spesialisListValue"
               @update:value="findSpecialist"
@@ -37,10 +39,11 @@
       </div>
       <div class="container">
         <div class="button">
-          <n-space vertical style="width: 300px" round type="primary">
+          <n-space vertical style="width: 310px" round type="primary">
             <n-select
-              placeholder="Find Hospital"
+              placeholder="Cari Rumah Sakit"
               filterable
+              clearable
               :options="rumahSakitListValue"
               @update:value="findRS"
             />
@@ -48,14 +51,16 @@
         </div>
       </div>
 
-      <div class="bottom">
-        <n-space>
-          <a href="https://www.google.com/">
-            <n-button type="success" size="large">
-              Silahkan Isi Form Kuesioner
-            </n-button>
-          </a>
-        </n-space>
+      <div class="container">
+        <div class="button">
+          <n-space>
+            <a href="https://survey.zohopublic.com/zs/iYCNre">
+              <n-button type="success" size="large">
+                Silahkan Isi Form Kuesioner
+              </n-button>
+            </a>
+          </n-space>
+        </div>
       </div>
     </div>
   </div>
@@ -495,6 +500,7 @@ export default {
   float: center;
 }
 .container {
+  height: 100%;
   width: 75%;
   display: flex;
   justify-content: center;
@@ -507,11 +513,12 @@ export default {
 }
 .bottom {
   width: 100%;
+
   display: flex;
   justify-content: center;
   position: relative;
 
-  top: 730px;
+  top: 150 px;
 }
 a:link {
   text-decoration: none;
