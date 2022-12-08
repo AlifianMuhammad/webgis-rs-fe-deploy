@@ -50,7 +50,9 @@
 
       <div>
         <n-space>
-          <n-button type="success"> Isi Form Kuesioner </n-button>
+          <a href="https://www.google.com/">
+            <n-button type="success"> Isi Form Kuesioner </n-button>
+          </a>
         </n-space>
       </div>
     </div>
