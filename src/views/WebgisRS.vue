@@ -69,6 +69,7 @@
 <script>
 import Map from "ol/Map";
 import Feature from "ol/Feature";
+import Collection from "ol/Collection";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
 import { BingMaps, Vector } from "ol/source";
@@ -85,7 +86,14 @@ import {
   NetworkAnalystService,
 } from "@supermap/iclient-ol";
 import { GeoJSON } from "ol/format";
-import { Icon, Style, Stroke } from "ol/style";
+import {
+  Icon,
+  Style,
+  Stroke,
+  Circle as CircleStyle,
+  Text,
+  Fill,
+} from "ol/style";
 import { onMounted, ref, shallowRef, onUpdated } from "vue";
 import { NButton, NDropdown, NCard, NSelect, NSpace } from "naive-ui";
 import Point from "ol/geom/Point";
@@ -113,7 +121,6 @@ export default {
       const [x, y] = [position.coords.latitude, position.coords.longitude];
       userCoordinates = [x, y];
     };
-
     const errorCallback = (error) => {
       console.log(position);
     };
@@ -121,6 +128,7 @@ export default {
       successCallback,
       errorCallback
     );
+
     let resultLayer = new VectorLayer({
       source: new VectorSource(),
       style: new Style({
@@ -150,17 +158,6 @@ export default {
     });
 
     async function findSpecialist(value) {
-      rs_coordinate = [
-        {
-          rs: "RSND",
-          coordinates: 50,
-        },
-        {
-          rs: "RS JIWA",
-          coordinates: 100,
-        },
-      ];
-
       map.value.removeLayer(pathLayer);
       map.value.removeLayer(pathLayer2);
       const res = await axios.get(
@@ -272,6 +269,90 @@ export default {
         return rsid.includes(parseInt(smid));
       });
 
+      console.log(features);
+
+      function convertFeaturesLabel(data) {
+        let output = [];
+        let i = 0;
+        let obj = {};
+        for (i = 0; i < data.length; i++) {
+          obj = {};
+          obj["nama"] = data[i].properties.NAME;
+          obj["geometry"] = new Point([
+            data[i].geometry.coordinates[0],
+            data[i].geometry.coordinates[1],
+          ]);
+          obj["jarak"] = getDistance(
+            [data[i].geometry.coordinates[1], data[i].geometry.coordinates[0]],
+            [userCoordinates[0], userCoordinates[1]],
+            radius
+          ).toFixed(2);
+
+          output.push(obj);
+        }
+        return output;
+      }
+
+      const labelFeatures = convertFeaturesLabel(features);
+      console.log(labelFeatures);
+
+      function stringDivider(str, width, spaceReplacer) {
+        if (str.length > width) {
+          let p = width;
+          while (p > 0 && str[p] != " " && str[p] != "-") {
+            p--;
+          }
+          if (p > 0) {
+            let left;
+            if (str.substring(p, p + 1) == "-") {
+              left = str.substring(0, p + 1);
+            } else {
+              left = str.substring(0, p);
+            }
+            const right = str.substring(p + 1);
+            return (
+              left + spaceReplacer + stringDivider(right, width, spaceReplacer)
+            );
+          }
+        }
+        return str;
+      }
+      function createStyle({ nama, jarak }) {
+        return new Style({
+          text: new Text({
+            font: "16px sans-serif",
+            jarak,
+            nama,
+
+            text: stringDivider(`${nama}, ${jarak} m`, 60, "\n"),
+            fill: new Fill({
+              color: [0, 0, 0, 1],
+            }),
+            backgroundFill: new Fill({
+              color: [255, 255, 255, 0.6],
+              padding: [5, 5, 5, 5],
+            }),
+            padding: [5, 5, 5, 5],
+          }),
+        });
+      }
+
+      const vectorPoints = new VectorLayer({
+        source: new VectorSource({
+          features: new Collection(
+            labelFeatures.map((featureOptions) => {
+              const feature = new Feature({
+                geometry: featureOptions.geometry,
+              });
+              feature.setStyle(createStyle(featureOptions));
+              return feature;
+            })
+          ),
+          format: new GeoJSON(),
+        }),
+      });
+      map.value.addLayer(vectorPoints);
+
       const RSIcon = new Style({
         image: new Icon({
           src: "/RSv2.png",
@@ -285,7 +366,7 @@ export default {
         })
       );
 
-      // console.log(features);
+      console.log(features);
 
       resultLayer.setStyle(RSIcon);
 
@@ -396,6 +477,7 @@ export default {
       );
       map.value.addLayer(eventLayer);
     }
+
     onMounted(() => {
       axios
         .get("https://perfect-seal-belt.cyclic.app/spesialislabelkey")
@@ -463,7 +545,7 @@ export default {
             new GeoJSON().readFeatures(serviceResult.result.features)
           );
         featureRS = serviceResult.result.features;
-        // console.log(featureRS);
+        console.log(featureRS.features.length);
       });
     });
     return {
