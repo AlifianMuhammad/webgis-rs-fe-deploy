@@ -48,10 +48,12 @@
         </div>
       </div>
 
-      <div>
+      <div class="bottom">
         <n-space>
           <a href="https://www.google.com/">
-            <n-button type="success"> Isi Form Kuesioner </n-button>
+            <n-button type="success" size="large">
+              Silahkan Isi Form Kuesioner
+            </n-button>
           </a>
         </n-space>
       </div>
@@ -503,12 +505,18 @@ export default {
 .button {
   margin: 5px;
 }
-.TableData {
-  width: 75%;
+.bottom {
+  width: 100%;
   display: flex;
   justify-content: center;
   position: relative;
 
-  top: 300px;
+  top: 430px;
+}
+a:link {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
 }
 </style>
