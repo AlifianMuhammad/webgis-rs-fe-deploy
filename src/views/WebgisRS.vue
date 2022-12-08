@@ -24,7 +24,7 @@
           </n-space>
         </div>
       </div>
-      <div class="container">
+      <!-- <div class="container">
         <div class="button">
           <n-space vertical style="width: 310px" round type="primary">
             <n-select
@@ -36,7 +36,7 @@
             />
           </n-space>
         </div>
-      </div>
+      </div> -->
       <div class="container">
         <div class="button">
           <n-space vertical style="width: 310px" round type="primary">
