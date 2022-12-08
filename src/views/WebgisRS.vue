@@ -511,7 +511,7 @@ export default {
   justify-content: center;
   position: relative;
 
-  top: 430px;
+  top: 730px;
 }
 a:link {
   text-decoration: none;
