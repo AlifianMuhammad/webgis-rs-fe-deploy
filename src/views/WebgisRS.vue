@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <div class="container">
+      <!-- <div class="container">
         <div class="button">
           <n-space>
             <a href="https://survey.zohopublic.com/zs/iYCNre">
@@ -61,7 +61,7 @@
             </a>
           </n-space>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -358,27 +358,8 @@ export default {
         });
       }
 
-      const vectorPoints = new VectorLayer({
-        source: new VectorSource({
-          features: new Collection(
-            labelFeatures.map((featureOptions) => {
-              const feature = new Feature({
-                geometry: featureOptions.geometry,
-              });
-              feature.setStyle(createStyle(featureOptions));
-              return feature;
-            })
-          ),
-          format: new GeoJSON(),
-        }),
-      });
-      map.value.addLayer(vectorPoints);
+        
 
-      const RSIcon = new Style({
-        image: new Icon({
-          src: "/RSv2.png",
-        }),
-      });
       resultLayer.getSource().clear();
       resultLayer.getSource().addFeatures(
         new GeoJSON().readFeatures({
@@ -387,6 +368,11 @@ export default {
         })
       );
 
+      const RSIcon = new Style({
+        image: new Icon({
+          src: "/RSv2.png",
+        }),
+      });
       console.log(features);
 
       resultLayer.setStyle(RSIcon);
