@@ -37,12 +37,11 @@
             <div class="hospital-card">
               <div
                 class="hospital-photo"
-                :style="{ backgroundImage: `url(/rs.jpg)` }"
+                :style="{ backgroundImage: `url('/${rs.nama}.jpg')` }"
               ></div>
               <div class="hospital-details">
                 <h4 class="hospital-name">{{ rs.nama }}</h4>
                 <p class="hospital-distance">{{ rs.jarak }} KM</p>
-                <p class="hospital-address">Jl. Kiai Aji Hasanuddin</p>
               </div>
               <a
                 :href="`https://www.google.com/maps/dir/${rs.user[0]},${rs.user[1]}/${rs.koordinat[0]},${rs.koordinat[1]}`"
@@ -103,7 +102,7 @@
 
 /* Sidebar header */
 .sidebar > div:first-child {
-  padding: 30px 20px 30px 20px;
+  padding: 30px 20px;
   margin-bottom: 40px;
   background-color: #028d6c;
 }
@@ -122,7 +121,7 @@
   margin: 0;
   color: white;
   text-align: left;
-  padding: 5px 0px;
+  padding: 5px 0;
 }
 
 /* Sidebar content */
@@ -151,8 +150,8 @@
 }
 
 .hospital-photo {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-size: cover;
   background-position: center;
   border-radius: 4px;
@@ -164,7 +163,7 @@
 }
 
 .hospital-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   font-family: "Plus Jakarta Sans", sans-serif;
   text-align: left;
@@ -172,55 +171,27 @@
 }
 
 .hospital-distance {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   font-family: "Plus Jakarta Sans", sans-serif;
   text-align: left;
   margin-bottom: 5px;
 }
 
-.hospital-address {
-  text-align: left;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 12px;
-  color: #8c8c8c;
-}
-
 .green-side {
-  width: 60px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: #028d6c;
   border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .direction-icon {
   width: 20px;
   height: 20px;
   fill: #fff;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .wrapper {
-    flex-direction: column-reverse;
-  }
-
-  .map-container {
-    width: 100%;
-    height: 70vh;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: 30vh;
-    overflow-y: auto;
-  }
-  .sidebar-header {
-    display: none;
-  }
-  .sidebar-section:first-child {
-    padding-top: 20px; /* Add desired padding value */
-  }
 }
 </style>
 
@@ -462,6 +433,8 @@ export default {
 
           output.push(obj);
         }
+
+        output.sort((a, b) => a.jarak - b.jarak);
         return output;
       }
 
@@ -628,14 +601,15 @@ export default {
       axios.get(SPESIALIS_LABEL_KEY_URL).then((result) => {
         spesialisList.value = result.data.spesialislabelkey;
       });
-
+      console.log(spesialisList);
       axios.get(SPESIALIS_LABEL_VALUE_URL).then((result) => {
         spesialisListValue.value = result.data.spesialislabelvalue;
       });
-
+      console.log(spesialisListValue);
       axios.get(RUMAH_SAKIT_URL).then((result) => {
         rumahSakitListValue.value = result.data.rumahsakit;
       });
+      console.log(rumahSakitListValue);
       // Create a new Map object and add Bing Maps layer and a result layer
       map.value = new Map({
         target: "map",
