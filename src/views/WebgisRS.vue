@@ -68,6 +68,8 @@
 <style>
 @import "ol/ol.css";
 
+/* Common styles */
+
 .wrapper {
   height: 100vh;
   width: 100%;
@@ -156,10 +158,12 @@
   background-position: center;
   border-radius: 4px;
   margin-right: 10px;
+  max-width: 1197px;
 }
 
 .hospital-details {
-  flex-grow: 1;
+  flex: 2;
+  min-width: 0; /* Added to allow text overflow */
 }
 
 .hospital-name {
@@ -168,6 +172,9 @@
   font-family: "Plus Jakarta Sans", sans-serif;
   text-align: left;
   margin-bottom: 5px;
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hides overflowing text */
+  text-overflow: ellipsis; /* Adds an ellipsis (...) to indicate text overflow */
 }
 
 .hospital-distance {
@@ -176,10 +183,13 @@
   font-family: "Plus Jakarta Sans", sans-serif;
   text-align: left;
   margin-bottom: 5px;
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hides overflowing text */
+  text-overflow: ellipsis; /* Adds an ellipsis (...) to indicate text overflow */
 }
 
 .green-side {
-  width: 80px;
+  width: 50px;
   height: 80px;
   background-color: #028d6c;
   border-radius: 0 4px 4px 0;
@@ -192,6 +202,37 @@
   width: 20px;
   height: 20px;
   fill: #fff;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 1197px) {
+  .hospital-photo {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 774px) {
+  .wrapper {
+    flex-direction: column-reverse;
+  }
+
+  .map-container {
+    width: 100%;
+    height: 75vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 25vh;
+    overflow-y: scroll;
+  }
+
+  .hospital-photo {
+    display: block;
+  }
+  .sidebar-header {
+    display: none;
+  }
 }
 </style>
 
@@ -403,7 +444,7 @@ export default {
           features: features,
         })
       );
-      console.log(features);
+
       // Set the style for the result layer using the RSIcon style
       resultLayer.setStyle(RSIcon);
 
@@ -440,10 +481,8 @@ export default {
 
       // Call the function to get an array of features with labels and distance
       const labelFeatures = convertFeaturesLabel(features);
-      console.log(labelFeatures);
 
       informasiRS.value = labelFeatures;
-      console.log(informasiRS);
 
       function createStyle({ nama, jarak }) {
         // Create a style for a label on the map, using the provided name and distance values
@@ -601,15 +640,15 @@ export default {
       axios.get(SPESIALIS_LABEL_KEY_URL).then((result) => {
         spesialisList.value = result.data.spesialislabelkey;
       });
-      console.log(spesialisList);
+
       axios.get(SPESIALIS_LABEL_VALUE_URL).then((result) => {
         spesialisListValue.value = result.data.spesialislabelvalue;
       });
-      console.log(spesialisListValue);
+
       axios.get(RUMAH_SAKIT_URL).then((result) => {
         rumahSakitListValue.value = result.data.rumahsakit;
       });
-      console.log(rumahSakitListValue);
+
       // Create a new Map object and add Bing Maps layer and a result layer
       map.value = new Map({
         target: "map",
@@ -653,7 +692,6 @@ export default {
               new GeoJSON().readFeatures(serviceResult.result.features)
             );
           featureRS = serviceResult.result.features;
-          console.log(featureRS.features.length);
         }
       );
     });
