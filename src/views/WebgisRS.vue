@@ -284,9 +284,9 @@ export default {
     });
 
     async function findRS(value) {
-      // // Remove the path layers from the map
-      // map.value.removeLayer(pathLayer);
-      // map.value.removeLayer(pathLayer2);
+      // Remove the path layers from the map
+      map.value.removeLayer(pathLayer);
+      map.value.removeLayer(labelVectorLayer);
 
       // Send a GET request to the server to get hospitals with the given name
       const response = await axios.get(
