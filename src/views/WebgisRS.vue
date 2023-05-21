@@ -8,7 +8,7 @@
 
       <div class="sidebar-section">
         <h2 class="sidebar-section-title">Find Rumah Sakit by Name</h2>
-        <n-space vertical :style="sidebarButtonStyle" round type="primary">
+        <n-space vertical round type="primary">
           <n-select
             placeholder="Find Hospital"
             filterable
@@ -20,7 +20,7 @@
       </div>
       <div class="sidebar-section">
         <h2 class="sidebar-section-title">Find the Nearest Rumah Sakit</h2>
-        <n-space vertical :style="sidebarButtonStyle" round type="primary">
+        <n-space vertical round type="primary">
           <n-select
             placeholder="Search"
             filterable
@@ -31,26 +31,32 @@
         </n-space>
       </div>
       <div class="sidebar-section" v-if="informasiRS.length > 0">
-        <h3 class="sidebar-section-title">Nearest Hospital Result</h3>
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Nama RS</th>
-                <th>Jarak</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(rs, index) in informasiRS"
-                :key="index"
-                :class="{ 'table-success': index === 0 }"
+        <h2 class="sidebar-section-title">Nearest Hospital Result</h2>
+        <div v-for="(rs, index) in informasiRS" :key="index" class="card">
+          <div class="card-body">
+            <div class="hospital-card">
+              <div
+                class="hospital-photo"
+                :style="{ backgroundImage: `url(/rs.jpg)` }"
+              ></div>
+              <div class="hospital-details">
+                <h4 class="hospital-name">{{ rs.nama }}</h4>
+                <p class="hospital-distance">{{ rs.jarak }} KM</p>
+                <p class="hospital-address">Jl. Kiai Aji Hasanuddin</p>
+              </div>
+              <a
+                :href="`https://www.google.com/maps/dir/${rs.user[0]},${rs.user[1]}/${rs.koordinat[0]},${rs.koordinat[1]}`"
+                target="_blank"
+                class="green-side d-flex align-items-center justify-content-center"
               >
-                <td class="align-left">{{ rs.nama }}</td>
-                <td>{{ rs.jarak }}</td>
-              </tr>
-            </tbody>
-          </table>
+                <img
+                  src="/route.png"
+                  class="direction-icon"
+                  alt="Direction Icon"
+                />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -88,6 +94,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  overflow-y: auto;
 }
 
 .sidebar > div {
@@ -121,6 +128,8 @@
 /* Sidebar content */
 .sidebar > div:not(:first-child) {
   padding: 10px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar h2 {
@@ -129,41 +138,89 @@
   margin-bottom: 10px;
   color: #028d6c;
   text-align: left;
-}
-
-.sidebarButtonStyle {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-/* Table */
-.table {
-  border-collapse: collapse;
   width: 100%;
 }
 
-.table th,
-.table td {
-  padding: 8px;
+.card {
+  margin-bottom: 20px;
+}
+
+.hospital-card {
+  display: flex;
+  align-items: center;
+}
+
+.hospital-photo {
+  width: 100px;
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.hospital-details {
+  flex-grow: 1;
+}
+
+.hospital-name {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: "Plus Jakarta Sans", sans-serif;
   text-align: left;
-  border: 1px solid #ccc;
+  margin-bottom: 5px;
 }
 
-.table th {
+.hospital-distance {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.hospital-address {
+  text-align: left;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.green-side {
+  width: 60px;
+  height: 100px;
   background-color: #028d6c;
-  color: white;
+  border-radius: 0 4px 4px 0;
 }
 
-.table tr:first-child th {
-  background-color: #028d6c;
+.direction-icon {
+  width: 20px;
+  height: 20px;
+  fill: #fff;
 }
 
-.table tr td {
-  background-color: white;
-}
+/* Responsive styles */
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column-reverse;
+  }
 
-.table tr:nth-child(even) td {
-  background-color: white;
+  .map-container {
+    width: 100%;
+    height: 70vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 30vh;
+    overflow-y: auto;
+  }
+  .sidebar-header {
+    display: none;
+  }
+  .sidebar-section:first-child {
+    padding-top: 20px; /* Add desired padding value */
+  }
 }
 </style>
 
@@ -213,7 +270,7 @@ export default {
   setup() {
     // Declare variables
     let featureRS;
-    let rs_coordinate;
+    let labelVectorLayer;
     let userCoordinates;
     const map = shallowRef();
     const spesialisList = ref([]);
@@ -375,7 +432,7 @@ export default {
           features: features,
         })
       );
-
+      console.log(features);
       // Set the style for the result layer using the RSIcon style
       resultLayer.setStyle(RSIcon);
 
@@ -391,6 +448,11 @@ export default {
             data[i].geometry.coordinates[0],
             data[i].geometry.coordinates[1],
           ]);
+          obj["koordinat"] = [
+            data[i].geometry.coordinates[1],
+            data[i].geometry.coordinates[0],
+          ];
+          obj["user"] = [userCoordinates[0], userCoordinates[1]];
           obj["jarak"] = getDistance(
             data[i].geometry.coordinates[1],
             data[i].geometry.coordinates[0],
@@ -435,8 +497,11 @@ export default {
           }),
         });
       }
+      if (labelVectorLayer) {
+        map.value.removeLayer(labelVectorLayer);
+      }
 
-      const labelVectorLayer = new VectorLayer({
+      labelVectorLayer = new VectorLayer({
         source: new VectorSource({
           features: new Collection(
             labelFeatures.map((featureOptions) => {
@@ -452,6 +517,7 @@ export default {
           format: new GeoJSON(),
         }),
       });
+
       // Add the vector layer to the map
       map.value.addLayer(labelVectorLayer);
 

@@ -44,7 +44,7 @@
         >
           Find the Nearest Rumah Sakit
         </h2>
-        <n-space vertical :style="sidebarButtonStyle" round type="primary">
+        <n-space vertical round type="primary">
           <n-select
             placeholder="Search"
             filterable
@@ -66,7 +66,7 @@
         >
           Find Rumah Sakit by Name
         </h2>
-        <n-space vertical :style="sidebarButtonStyle" round type="primary">
+        <n-space vertical round type="primary">
           <n-select
             placeholder="Find Hospital"
             filterable
@@ -383,6 +383,7 @@ export default {
         for (i = 0; i < data.length; i++) {
           obj = {};
           obj["nama"] = data[i].properties.NAME;
+
           obj["geometry"] = new Point([
             data[i].geometry.coordinates[0],
             data[i].geometry.coordinates[1],
@@ -546,7 +547,9 @@ export default {
           parameter: analystParameter,
         });
 
-      new NetworkAnalystService(NETWORK_DATASET_SERVICE_URL).findClosestFacilities(
+      new NetworkAnalystService(
+        NETWORK_DATASET_SERVICE_URL
+      ).findClosestFacilities(
         findClosestFacilitiesParameters,
         function (serviceResult) {
           serviceResult.result.facilityPathList.map(function (result) {
