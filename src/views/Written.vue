@@ -1,25 +1,49 @@
 <template>
   <div class="wrapper">
     <div class="sidebar">
-      <div class="sidebar-header">
-        <h1 class="sidebar-title">WebGIS Rumah Sakit</h1>
-        <p class="sidebar-subtitle">Kota Semarang, Jawa Tengah - Indonesia</p>
+      <div
+        style="
+          padding: 30px 20px 30px 20px;
+          margin-bottom: 40px;
+          background-color: #028d6c;
+        "
+      >
+        <h1
+          style="
+            font-family: 'Plus Jakarta Sans';
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-align: left;
+            margin: 0;
+          "
+        >
+          WebGIS Rumah Sakit
+        </h1>
+        <p
+          style="
+            font-size: 14px;
+            margin: 0;
+            color: white;
+            text-align: left;
+            padding: 5px 0px;
+          "
+        >
+          Kota Semarang, Jawa Tengah - Indonesia
+        </p>
       </div>
-
-      <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find Rumah Sakit by Name</h2>
-        <n-space vertical :style="sidebarButtonStyle" round type="primary">
-          <n-select
-            placeholder="Find Hospital"
-            filterable
-            clearable
-            :options="rumahSakitListValue"
-            @update:value="findRS"
-          />
-        </n-space>
-      </div>
-      <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find the Nearest Rumah Sakit</h2>
+      <div style="padding: 10px 20px">
+        <h2
+          style="
+            font-family: 'Plus Jakarta Sans';
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #028d6c;
+            text-align: left;
+          "
+        >
+          Find the Nearest Rumah Sakit
+        </h2>
         <n-space vertical :style="sidebarButtonStyle" round type="primary">
           <n-select
             placeholder="Search"
@@ -30,28 +54,27 @@
           />
         </n-space>
       </div>
-      <div class="sidebar-section" v-if="informasiRS.length > 0">
-        <h3 class="sidebar-section-title">Nearest Hospital Result</h3>
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Nama RS</th>
-                <th>Jarak</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(rs, index) in informasiRS"
-                :key="index"
-                :class="{ 'table-success': index === 0 }"
-              >
-                <td class="align-left">{{ rs.nama }}</td>
-                <td>{{ rs.jarak }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div style="padding: 10px 20px">
+        <h2
+          style="
+            font-family: 'Plus Jakarta Sans';
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #028d6c;
+            text-align: left;
+          "
+        >
+          Find Rumah Sakit by Name
+        </h2>
+        <n-space vertical :style="sidebarButtonStyle" round type="primary">
+          <n-select
+            placeholder="Find Hospital"
+            filterable
+            clearable
+            :options="rumahSakitListValue"
+            @update:value="findRS"
+          />
+        </n-space>
       </div>
     </div>
     <div class="map-container">
@@ -72,7 +95,7 @@
 
 .map-container {
   width: 75%;
-  height: 100vh;
+  height: calc(100vh - 40px);
 }
 
 #map {
@@ -82,7 +105,7 @@
 
 .sidebar {
   width: 25%;
-  height: 100vh;
+  height: calc(100vh - 40px);
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -94,76 +117,35 @@
   width: 100%;
 }
 
-/* Sidebar header */
-.sidebar > div:first-child {
-  padding: 30px 20px 30px 20px;
-  margin-bottom: 40px;
-  background-color: #028d6c;
+.button {
+  margin: 5px;
 }
 
-.sidebar > div:first-child h1 {
-  font-family: "Plus Jakarta Sans";
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  text-align: left;
-  margin: 0;
+a:link {
+  text-decoration: none;
 }
 
-.sidebar > div:first-child p {
-  font-size: 14px;
-  margin: 0;
-  color: white;
-  text-align: left;
-  padding: 5px 0px;
+a:hover {
+  text-decoration: none;
 }
 
-/* Sidebar content */
-.sidebar > div:not(:first-child) {
-  padding: 10px 20px;
-}
+@media screen and (max-width: 767px) {
+  .wrapper {
+    flex-direction: column;
+  }
 
-.sidebar h2 {
-  font-family: "Plus Jakarta Sans";
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: #028d6c;
-  text-align: left;
-}
+  .map-container {
+    width: 100%;
+    height: 75%;
+  }
 
-.sidebarButtonStyle {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-/* Table */
-.table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.table th,
-.table td {
-  padding: 8px;
-  text-align: left;
-  border: 1px solid #ccc;
-}
-
-.table th {
-  background-color: #028d6c;
-  color: white;
-}
-
-.table tr:first-child th {
-  background-color: #028d6c;
-}
-
-.table tr td {
-  background-color: white;
-}
-
-.table tr:nth-child(even) td {
-  background-color: white;
+  .sidebar {
+    width: 100%;
+    height: 25%;
+    margin-right: 0;
+    margin-left: auto;
+    order: 2;
+  }
 }
 </style>
 
@@ -200,7 +182,8 @@ import {
 } from "ol/style";
 
 // Import Naive UI libraries
-import { NButton, NDropdown, NCard, NSelect, NSpace, NTable } from "naive-ui";
+import { NButton, NDropdown, NCard, NSelect, NSpace } from "naive-ui";
+
 export default {
   components: {
     NButton,
@@ -208,7 +191,7 @@ export default {
     NCard,
     NSelect,
     NSpace,
-    NTable,
+    RsTable,
   },
   setup() {
     // Declare variables
@@ -219,7 +202,6 @@ export default {
     const spesialisList = ref([]);
     const spesialisListValue = ref([]);
     const rumahSakitListValue = ref([]);
-    const informasiRS = ref([]);
 
     // Declare constant URLs and API key
     const SPESIALIS_LABEL_KEY_URL =
@@ -227,77 +209,13 @@ export default {
     const SPESIALIS_LABEL_VALUE_URL =
       "https://perfect-seal-belt.cyclic.app/spesialislabelvalue";
     const RUMAH_SAKIT_URL = "https://perfect-seal-belt.cyclic.app/rumahsakit";
+    const BING_MAPS_API_KEY =
+      "Aug_jpyeictKv9-blHjr0OJOy-hYRR_5bIWhecGYlywC_F6p0LMvQ0Ye8J95tSJt";
     const HOSPITAL_FEATURES_SERVICES_URL =
       "https://iserver.supermap.id/iserver/services/data-SpatialDataWebGISRS-3/rest/data";
 
-    const BING_MAPS_API_KEY =
-      "Aug_jpyeictKv9-blHjr0OJOy-hYRR_5bIWhecGYlywC_F6p0LMvQ0Ye8J95tSJt";
-
     const NETWORK_DATASET_SERVICE_URL =
       "https://iserver.supermap.id/iserver/services/transportationAnalyst-SpatialDataWebGISRS/rest/networkanalyst/Data_WebGIS_Network@Data_WebGIS";
-
-    let resultLayer = new VectorLayer({
-      source: new VectorSource(),
-      style: new Style({
-        image: new Icon({
-          src: "/rs.png",
-        }),
-      }),
-    });
-
-    let pathLayer = new VectorLayer({
-      source: new Vector(),
-      style: new Style({
-        stroke: new Stroke({
-          color: "rgba(22, 160, 133, 1)",
-          width: 7.5,
-        }),
-      }),
-    });
-
-    async function findRS(value) {
-      // // Remove the path layers from the map
-      // map.value.removeLayer(pathLayer);
-      // map.value.removeLayer(pathLayer2);
-
-      // Send a GET request to the server to get hospitals with the given name
-      const response = await axios.get(
-        `https://perfect-seal-belt.cyclic.app/rumahsakit/findRS/${value}`
-      );
-      const selectedHospitals = response.data;
-
-      // Get the IDs of the selected hospitals
-      const selectedHospitalIDs = selectedHospitals.data.map(
-        (hospital) => hospital.smid
-      );
-
-      // Filter the list of hospital features to include only those with IDs in the selectedHospitalIDs array
-      const selectedHospitalFeatures = featureRS.features.filter((feature) => {
-        const smid = feature.properties["SMID"];
-        return selectedHospitalIDs.includes(parseInt(smid));
-      });
-
-      // Clear the result layer and add the selected hospital features to it
-      resultLayer.getSource().clear();
-      resultLayer.getSource().addFeatures(
-        new GeoJSON().readFeatures({
-          type: "FeatureCollection",
-          features: selectedHospitalFeatures,
-        })
-      );
-
-      // Zoom the map to the extent of the result layer
-      const extent = resultLayer.getSource().getExtent();
-      const centerPoint = [
-        (extent[0] + extent[2]) / 2,
-        (extent[1] + extent[3]) / 2,
-      ];
-      map.value.getView().animate({
-        zoom: 17,
-        center: centerPoint,
-        duration: 500,
-      });
-    }
 
     // Define a function to calculate the distance between two points on Earth
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -345,7 +263,103 @@ export default {
       errorCallback
     );
 
+    let resultLayer = new VectorLayer({
+      source: new VectorSource(),
+      style: new Style({
+        image: new Icon({
+          src: "/rs.png",
+        }),
+      }),
+    });
+
+    let pathLayer = new VectorLayer({
+      source: new Vector(),
+      style: new Style({
+        stroke: new Stroke({
+          color: "rgba(22, 160, 133, 1)",
+          width: 7.5,
+        }),
+      }),
+    });
+    let pathLayer2 = new VectorLayer({
+      source: new Vector(),
+      style: new Style({
+        stroke: new Stroke({
+          color: "rgba(63, 195, 128, 1)",
+          width: 3.75,
+        }),
+      }),
+    });
+
+    async function findSpecialist(value) {
+      map.value.removeLayer(pathLayer);
+      map.value.removeLayer(pathLayer2);
+      const res = await axios.get(
+        `https://perfect-seal-belt.cyclic.app/spesialis/${value}`
+      );
+      const selected = res.data;
+
+      const rsid = selected.data.map((r) => r.smid);
+      let length = rsid.length;
+
+      const features = featureRS.features.filter((feature) => {
+        const smid = feature.properties["SMID"];
+        return rsid.includes(parseInt(smid));
+      });
+
+      function convertFeatures(data) {
+        let output = [];
+        let i = 0;
+        let obj = {};
+        for (i = 0; i < data.length; i++) {
+          obj = {};
+          obj["rs"] = data[i].properties.NAME;
+          obj["jarak"] = getDistance(
+            data[i].geometry.coordinates[1],
+            data[i].geometry.coordinates[0],
+            userCoordinates[0],
+            userCoordinates[1]
+          );
+
+          output.push(obj);
+        }
+        return output;
+      }
+
+      rs_coordinate = convertFeatures(features);
+
+      console.log(rs_coordinate); // RS DAN JARAK LIST
+
+      resultLayer.getSource().clear();
+      resultLayer.getSource().addFeatures(
+        new GeoJSON().readFeatures({
+          type: "FeatureCollection",
+          features: features,
+        })
+      );
+      const extent = resultLayer.getSource().getExtent();
+      // console.log(resultLayer);
+
+      if (length == 1) {
+        const centerPoint = [
+          (extent[0] + extent[2]) / 2,
+          (extent[1] + extent[3]) / 2,
+        ];
+        map.value.getView().animate({
+          zoom: 17,
+          center: centerPoint,
+          duration: 500,
+        });
+      } else {
+        map.value.getView().fit(extent, { duration: 500 });
+      }
+    }
+
     async function closestRS(value) {
+      // Remove any previous path layers from the map
+      map.value.removeLayer(pathLayer);
+      map.value.removeLayer(pathLayer2);
+
       // Make a GET request to the API to get hospitals with a specific specialist
       const res = await axios.get(
         `https://perfect-seal-belt.cyclic.app/spesialis/${value}`
@@ -360,24 +374,6 @@ export default {
         const smid = feature.properties["SMID"];
         return rsid.includes(parseInt(smid));
       });
-
-      const RSIcon = new Style({
-        image: new Icon({
-          src: "/RSv2.png",
-        }),
-      });
-
-      // Clear any existing features from the result layer's source and add new features based on the provided features
-      resultLayer.getSource().clear();
-      resultLayer.getSource().addFeatures(
-        new GeoJSON().readFeatures({
-          type: "FeatureCollection",
-          features: features,
-        })
-      );
-
-      // Set the style for the result layer using the RSIcon style
-      resultLayer.setStyle(RSIcon);
 
       // Convert the features to an array of objects with labels and distance
       function convertFeaturesLabel(data) {
@@ -407,9 +403,6 @@ export default {
       const labelFeatures = convertFeaturesLabel(features);
       console.log(labelFeatures);
 
-      informasiRS.value = labelFeatures;
-      console.log(informasiRS);
-
       function createStyle({ nama, jarak }) {
         // Create a style for a label on the map, using the provided name and distance values
         return new Style({
@@ -436,7 +429,7 @@ export default {
         });
       }
 
-      const labelVectorLayer = new VectorLayer({
+      const vectorPoints = new VectorLayer({
         source: new VectorSource({
           features: new Collection(
             labelFeatures.map((featureOptions) => {
@@ -453,7 +446,25 @@ export default {
         }),
       });
       // Add the vector layer to the map
-      map.value.addLayer(labelVectorLayer);
+      map.value.addLayer(vectorPoints);
+
+      const RSIcon = new Style({
+        image: new Icon({
+          src: "/RSv2.png",
+        }),
+      });
+
+      // Clear any existing features from the result layer's source and add new features based on the provided features
+      resultLayer.getSource().clear();
+      resultLayer.getSource().addFeatures(
+        new GeoJSON().readFeatures({
+          type: "FeatureCollection",
+          features: features,
+        })
+      );
+
+      // Set the style for the result layer using the RSIcon style
+      resultLayer.setStyle(RSIcon);
 
       // Create a point object using user's coordinates
       const eventPoint = new Point([userCoordinates[1], userCoordinates[0]]);
@@ -535,9 +546,7 @@ export default {
           parameter: analystParameter,
         });
 
-      new NetworkAnalystService(
-        NETWORK_DATASET_SERVICE_URL
-      ).findClosestFacilities(
+      new NetworkAnalystService(NETWORK_DATASET_SERVICE_URL).findClosestFacilities(
         findClosestFacilitiesParameters,
         function (serviceResult) {
           serviceResult.result.facilityPathList.map(function (result) {
@@ -557,6 +566,51 @@ export default {
 
       map.value.addLayer(eventLayer); // adding the eventLayer to the map
     }
+
+    async function findRS(value) {
+      // Remove the path layers from the map
+      map.value.removeLayer(pathLayer);
+      map.value.removeLayer(pathLayer2);
+
+      // Send a GET request to the server to get hospitals with the given name
+      const response = await axios.get(
+        `https://perfect-seal-belt.cyclic.app/rumahsakit/findRS/${value}`
+      );
+      const selectedHospitals = response.data;
+
+      // Get the IDs of the selected hospitals
+      const selectedHospitalIDs = selectedHospitals.data.map(
+        (hospital) => hospital.smid
+      );
+
+      // Filter the list of hospital features to include only those with IDs in the selectedHospitalIDs array
+      const selectedHospitalFeatures = featureRS.features.filter((feature) => {
+        const smid = feature.properties["SMID"];
+        return selectedHospitalIDs.includes(parseInt(smid));
+      });
+
+      // Clear the result layer and add the selected hospital features to it
+      resultLayer.getSource().clear();
+      resultLayer.getSource().addFeatures(
+        new GeoJSON().readFeatures({
+          type: "FeatureCollection",
+          features: selectedHospitalFeatures,
+        })
+      );
+
+      // Zoom the map to the extent of the result layer
+      const extent = resultLayer.getSource().getExtent();
+      const centerPoint = [
+        (extent[0] + extent[2]) / 2,
+        (extent[1] + extent[3]) / 2,
+      ];
+      map.value.getView().animate({
+        zoom: 17,
+        center: centerPoint,
+        duration: 500,
+      });
+    }
+
     onMounted(() => {
       // Use Promise.all to fetch all URLs at once and set reactive variables once all requests have been completed
       axios.get(SPESIALIS_LABEL_KEY_URL).then((result) => {
@@ -570,6 +624,7 @@ export default {
       axios.get(RUMAH_SAKIT_URL).then((result) => {
         rumahSakitListValue.value = result.data.rumahsakit;
       });
+
       // Create a new Map object and add Bing Maps layer and a result layer
       map.value = new Map({
         target: "map",
@@ -588,7 +643,6 @@ export default {
           imagerySet: "Road",
         }),
       });
-
       map.value.addLayer(bingMapLayer);
       map.value.addLayer(resultLayer);
 
@@ -618,13 +672,14 @@ export default {
       );
     });
     return {
-      featureRS,
       spesialisList,
       spesialisListValue,
       rumahSakitListValue,
-      informasiRS,
+      featureRS,
+      rs_coordinate,
       findRS,
       closestRS,
+      findSpecialist,
     };
   },
 };
