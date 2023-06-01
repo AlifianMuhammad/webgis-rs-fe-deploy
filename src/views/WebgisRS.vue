@@ -437,6 +437,7 @@ import VectorSource from "ol/source/Vector";
 import { BingMaps, Vector } from "ol/source";
 import Point from "ol/geom/Point";
 import { GeoJSON } from "ol/format";
+import XYZ from "ol/source/XYZ";
 import {
   FeatureService,
   GetFeaturesBySQLParameters,
@@ -491,6 +492,9 @@ export default {
 
     const NETWORK_DATASET_SERVICE_URL =
       "https://iserver.supermap.id/iserver/services/transportationAnalyst-SpatialDataWebGISRS/rest/networkanalyst/Data_WebGIS_Network@Data_WebGIS";
+
+    const MAPBOX_ACCESS_TOKEN =
+      "pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q";
 
     let resultLayer = new VectorLayer({
       source: new VectorSource(),
@@ -1011,16 +1015,32 @@ export default {
         }),
       });
 
-      let bingMapLayer = new TileLayer({
+      // let bingMapLayer = new TileLayer({
+      //   visible: true,
+      //   preload: Infinity,
+      //   source: new BingMaps({
+      //     key: BING_MAPS_API_KEY,
+      //     imagerySet: "Road",
+      //   }),
+      // });
+
+      // map.value.addLayer(bingMapLayer);
+      let mapboxLayer = new TileLayer({
         visible: true,
+        opacity: 0.75,
         preload: Infinity,
-        source: new BingMaps({
-          key: BING_MAPS_API_KEY,
-          imagerySet: "Road",
+        source: new XYZ({
+          url: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q",
+          attributions: '© <a href="https://www.mapbox.com/">Mapbox</a>',
+          tilePixelRatio: 2,
+          projection: "EPSG:3857",
+          tileSize: 512,
+          maxZoom: 20,
         }),
       });
 
-      map.value.addLayer(bingMapLayer);
+      map.value.addLayer(mapboxLayer);
+
       map.value.addLayer(resultLayer);
 
       // Define parameters for querying features
