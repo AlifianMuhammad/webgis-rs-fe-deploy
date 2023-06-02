@@ -5,37 +5,6 @@
         <h1 class="sidebar-title">WebGIS Rumah Sakit</h1>
         <p class="sidebar-subtitle">Kota Semarang, Jawa Tengah - Indonesia</p>
       </div>
-
-      <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find Rumah Sakit by Name</h2>
-        <n-space vertical round type="primary">
-          <n-select
-            placeholder="Find Hospital"
-            filterable
-            clearable
-            :options="rumahSakitListValue"
-            @update:value="findRS"
-          />
-        </n-space>
-      </div>
-      <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find the Nearest Rumah Sakit</h2>
-        <n-space vertical round type="primary">
-          <n-select
-            placeholder="Search"
-            filterable
-            clearable
-            :options="spesialisListValue"
-            @update:value="closestRS"
-          />
-        </n-space>
-      </div>
-      <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Show All Hospital</h2>
-        <button class="btn btn-success" @click="showAllHospitals">
-          Show All Hospital
-        </button>
-      </div>
       <div class="sidebar-section" v-if="informasiRS.length > 0">
         <h2 class="sidebar-section-title">Nearest Hospital Result</h2>
         <div
@@ -136,9 +105,45 @@
           </div>
         </div>
       </div>
+      <div class="sidebar-section">
+        <h2 class="sidebar-section-title">Find Rumah Sakit by Name</h2>
+        <n-space vertical round type="primary">
+          <n-select
+            placeholder="Find Hospital"
+            filterable
+            :options="rumahSakitListValue"
+            @update:value="findRS"
+          />
+        </n-space>
+      </div>
+      <div class="sidebar-section">
+        <h2 class="sidebar-section-title">Find the Nearest Rumah Sakit</h2>
+        <n-space vertical round type="primary">
+          <n-select
+            placeholder="Search"
+            filterable
+            :options="spesialisListValue"
+            @update:value="closestRS"
+          />
+        </n-space>
+      </div>
+      <div class="sidebar-section">
+        <button class="btn btn-success" @click="showAllHospitals">
+          Show All Hospital
+        </button>
+      </div>
     </div>
     <div class="map-container">
       <div id="map"></div>
+      <div class="loading-overlay" v-if="isLoading">
+        <span class="loading-spinner">
+          <span
+            class="spinner-border spinner-border-lg"
+            role="status"
+            aria-hidden="true"
+          ></span>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -183,7 +188,7 @@
 /* Sidebar header */
 .sidebar > div:first-child {
   padding: 30px 20px;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   background-color: #028d6c;
 }
 
@@ -226,7 +231,6 @@
 }
 
 .sidebar-section-title {
-  margin-top: 20px;
   margin-bottom: 10px;
   color: #028d6c;
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -389,6 +393,29 @@
   height: 20px;
   fill: #fff;
 }
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Set the background color and opacity as desired */
+  z-index: 9999;
+  font-family: "Plus Jakarta Sans", sans-serif; /* Use the desired font family */
+  color: #fff; /* Set the font color */
+}
+
+.loading-spinner {
+  font-size: 3rem; /* Adjust the size of the loading spinner */
+}
 
 /* Responsive styles */
 @media screen and (max-width: 1197px) {
@@ -411,6 +438,7 @@
     width: 100%;
     height: 25vh;
     overflow-y: scroll;
+    padding-top: 15px;
   }
 
   .hospital-photo {
@@ -477,6 +505,7 @@ export default {
     const rumahSakitListValue = ref([]);
     const informasiRS = ref([]);
     const sidebarRS = ref([]);
+    const isLoading = ref(true);
 
     // Declare constant URLs and API key
     const SPESIALIS_LABEL_KEY_URL =
@@ -500,7 +529,7 @@ export default {
       source: new VectorSource(),
       style: new Style({
         image: new Icon({
-          src: "/rs.png",
+          src: "/RSv2.png",
         }),
       }),
     });
@@ -516,6 +545,9 @@ export default {
     });
 
     async function showAllHospitals() {
+      informasiRS.value = [];
+      sidebarRS.value = [];
+      isLoading.value = true;
       // Remove the path layers from the map
       map.value.removeLayer(pathLayer);
       map.value.removeLayer(labelVectorLayer);
@@ -539,9 +571,11 @@ export default {
         duration: 500,
         padding: [300, 300, 300, 300],
       });
+      isLoading.value = false;
     }
 
     async function findRS(value) {
+      isLoading.value = true;
       // Remove the path layers from the map
       map.value.removeLayer(pathLayer);
       map.value.removeLayer(labelVectorLayer);
@@ -627,6 +661,7 @@ export default {
         center: centerPoint,
         duration: 500,
       });
+      isLoading.value = false;
     }
 
     // Define a function to calculate the distance between two points on Earth
@@ -676,6 +711,7 @@ export default {
     );
 
     async function closestRS(value) {
+      isLoading.value = true;
       // Make a GET request to the API to get hospitals with a specific specialist
       const res = await axios.get(
         `https://perfect-seal-belt.cyclic.app/spesialis/${value}`
@@ -710,7 +746,7 @@ export default {
       resultLayer.setStyle(RSIcon);
 
       map.value.removeLayer(pathLayer);
-      console.log(features);
+      // console.log(features);
       sidebarRS.value = [];
       // Convert the features to an array of objects with labels and distance
       function convertFeaturesLabel(data) {
@@ -807,7 +843,7 @@ export default {
         y: userCoordinates[0],
       };
 
-      console.log(eventPointString);
+      // console.log(eventPointString);
 
       // Create a feature object using the point object
       const eventFeature = new Feature(eventPoint);
@@ -818,12 +854,12 @@ export default {
           src: "/User.png",
         }),
       });
-
+      console.log(eventFeature);
       // Create a vector source object using the feature object
       const eventSource = new Vector({
         features: [eventFeature],
       });
-
+      console.log(eventSource);
       // Create a vector layer object using the vector source object
       const eventLayer = new VectorLayer({
         source: eventSource,
@@ -836,7 +872,7 @@ export default {
       const featuresGeom = features.map((r) => r.geometry);
       const featuresCoordinates = featuresGeom.map((r) => r.coordinates);
 
-      console.log(featuresCoordinates);
+      // console.log(featuresCoordinates);
 
       //Converts the array of coordinates into an array of objects.
       function convertToArrayOfObjects(data) {
@@ -856,7 +892,7 @@ export default {
 
       let featuresCoordinatesObject =
         convertToArrayOfObjects(featuresCoordinates);
-      console.log(featuresCoordinatesObject);
+      // console.log(featuresCoordinatesObject);
 
       const resultSetting = new TransportationAnalystResultSetting({
         // Set the properties for the result settings object
@@ -908,9 +944,11 @@ export default {
       );
 
       map.value.addLayer(eventLayer); // adding the eventLayer to the map
+      isLoading.value = false;
     }
 
     function logClickedCoordinate(coordinate) {
+      isLoading.value = true;
       map.value.removeLayer(pathLayer);
       pathLayer.getSource().clear();
       const userPositionString = {
@@ -982,16 +1020,18 @@ export default {
             const pathLayerExtent = pathLayer.getSource().getExtent(); // getting the extent of the source of the pathLayer
             map.value.getView().fit(pathLayerExtent, {
               duration: 500,
-              padding: [150, 150, 150, 150],
+              padding: [75, 75, 75, 75],
             }); // fitting the view of the map to the extent of the pathLayer source with animation of duration 500ms
 
             map.value.addLayer(pathLayer); // adding the pathLayer back to the map
           });
         }
       );
+      isLoading.value = false;
     }
 
     onMounted(() => {
+      isLoading.value = true;
       // Use Promise.all to fetch all URLs at once and set reactive variables once all requests have been completed
       axios.get(SPESIALIS_LABEL_KEY_URL).then((result) => {
         spesialisList.value = result.data.spesialislabelkey;
@@ -1040,7 +1080,6 @@ export default {
       });
 
       map.value.addLayer(mapboxLayer);
-
       map.value.addLayer(resultLayer);
 
       // Define parameters for querying features
@@ -1066,8 +1105,10 @@ export default {
           featureRS = serviceResult.result.features;
         }
       );
+      isLoading.value = false;
     });
     return {
+      isLoading,
       featureRS,
       spesialisList,
       spesialisListValue,
