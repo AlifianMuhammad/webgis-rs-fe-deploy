@@ -514,7 +514,7 @@ export default {
       "https://perfect-seal-belt.cyclic.app/spesialislabelvalue";
     const RUMAH_SAKIT_URL = "https://perfect-seal-belt.cyclic.app/rumahsakit";
     const HOSPITAL_FEATURES_SERVICES_URL =
-      "https://iserver.supermap.id/iserver/services/data-webgis_rs_server-2/rest/data";
+      "https://iserver.supermap.id/iserver/services/data-webgis_rs_server/rest/data/";
 
     const BING_MAPS_API_KEY =
       "Aug_jpyeictKv9-blHjr0OJOy-hYRR_5bIWhecGYlywC_F6p0LMvQ0Ye8J95tSJt";
