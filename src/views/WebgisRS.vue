@@ -106,7 +106,7 @@
         </div>
       </div>
       <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find Rumah Sakit by Name</h2>
+        <h2 class="sidebar-section-title">Find Hospitals</h2>
         <n-space vertical round type="primary">
           <n-select
             placeholder="Find Hospital"
@@ -117,7 +117,7 @@
         </n-space>
       </div>
       <div class="sidebar-section">
-        <h2 class="sidebar-section-title">Find the Nearest Rumah Sakit</h2>
+        <h2 class="sidebar-section-title">Medical Specialties and Clinics</h2>
         <n-space vertical round type="primary">
           <n-select
             placeholder="Search"
@@ -843,7 +843,7 @@ export default {
         y: userCoordinates[0],
       };
 
-      // console.log(eventPointString);
+      console.log(eventPointString);
 
       // Create a feature object using the point object
       const eventFeature = new Feature(eventPoint);
