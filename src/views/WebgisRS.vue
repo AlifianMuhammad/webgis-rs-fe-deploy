@@ -466,7 +466,6 @@ import { BingMaps, Vector } from "ol/source";
 import Point from "ol/geom/Point";
 import { GeoJSON } from "ol/format";
 import XYZ from "ol/source/XYZ";
-import Geolocation from "ol/Geolocation";
 import {
   FeatureService,
   GetFeaturesBySQLParameters,
@@ -691,7 +690,7 @@ export default {
       return deg * (Math.PI / 180);
     }
 
-    // Function to retrieve the user's coordinates using the Geolocation API
+    // Define a success callback function for the getCurrentPosition method
     const successCallback = (position) => {
       // Extract the user's latitude and longitude coordinates from the position object
       const x = position.coords.latitude;
@@ -712,8 +711,13 @@ export default {
       errorCallback
     );
 
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        console.log(position.coords.latitude, position.coords.longitude),
+      (error) => console.log(error)
+    );
+
     async function closestRS(value) {
-      console.log(userCoordinates);
       isLoading.value = true;
       // Make a GET request to the API to get hospitals with a specific specialist
       const res = await axios.get(
