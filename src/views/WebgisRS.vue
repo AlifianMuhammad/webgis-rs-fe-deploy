@@ -692,34 +692,25 @@ export default {
     }
 
     // Function to retrieve the user's coordinates using the Geolocation API
-    const getUserCoordinates = () => {
-      return new Promise((resolve, reject) => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const latitude = position.coords.latitude;
-              const longitude = position.coords.longitude;
-              userCoordinates = [latitude, longitude]; // Store the coordinates in userCoordinates
-              resolve(userCoordinates);
-            },
-            (error) => {
-              console.log(error);
-              reject("Error occurred while retrieving coordinates.");
-            }
-          );
-        } else {
-          reject("Geolocation is not supported by your browser.");
-        }
-      });
+    const successCallback = (position) => {
+      // Extract the user's latitude and longitude coordinates from the position object
+      const x = position.coords.latitude;
+      const y = position.coords.longitude;
+      // Store the coordinates in an array
+      userCoordinates = [x, y];
     };
 
-    // Call the function to get the user's coordinates
-    getUserCoordinates()
-      .then((coordinates) => {
-        console.log("User coordinates:", coordinates);
-        // Use the coordinates array in your project as needed
-      })
-      .catch((error) => console.log(error));
+    // Define an error callback function for the getCurrentPosition method
+    const errorCallback = (error) => {
+      // Log the error to the console
+      console.log(error);
+    };
+
+    // Call the getCurrentPosition method of the Geolocation API to get the user's location
+    const dataKoor = navigator.geolocation.getCurrentPosition(
+      successCallback,
+      errorCallback
+    );
 
     async function closestRS(value) {
       console.log(userCoordinates);
