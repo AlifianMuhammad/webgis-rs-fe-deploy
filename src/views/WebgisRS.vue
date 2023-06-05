@@ -466,6 +466,7 @@ import { BingMaps, Vector } from "ol/source";
 import Point from "ol/geom/Point";
 import { GeoJSON } from "ol/format";
 import XYZ from "ol/source/XYZ";
+import Geolocation from "ol/Geolocation";
 import {
   FeatureService,
   GetFeaturesBySQLParameters,
@@ -523,7 +524,7 @@ export default {
       "https://iserver.supermap.id/iserver/services/transportationAnalyst-SpatialDataWebGISRS/rest/networkanalyst/Data_WebGIS_Network@Data_WebGIS";
 
     const MAPBOX_ACCESS_TOKEN =
-      "pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q";
+      "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q";
 
     let resultLayer = new VectorLayer({
       source: new VectorSource(),
@@ -577,6 +578,7 @@ export default {
     async function findRS(value) {
       isLoading.value = true;
       // Remove the path layers from the map
+      console.log(userCoordinates);
       map.value.removeLayer(pathLayer);
       map.value.removeLayer(labelVectorLayer);
 
@@ -689,28 +691,38 @@ export default {
       return deg * (Math.PI / 180);
     }
 
-    // Define a success callback function for the getCurrentPosition method
-    const successCallback = (position) => {
-      // Extract the user's latitude and longitude coordinates from the position object
-      const x = position.coords.latitude;
-      const y = position.coords.longitude;
-      // Store the coordinates in an array
-      userCoordinates = [x, y];
+    // Function to retrieve the user's coordinates using the Geolocation API
+    const getUserCoordinates = () => {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+              userCoordinates = [latitude, longitude]; // Store the coordinates in userCoordinates
+              resolve(userCoordinates);
+            },
+            (error) => {
+              console.log(error);
+              reject("Error occurred while retrieving coordinates.");
+            }
+          );
+        } else {
+          reject("Geolocation is not supported by your browser.");
+        }
+      });
     };
 
-    // Define an error callback function for the getCurrentPosition method
-    const errorCallback = (error) => {
-      // Log the error to the console
-      console.log(error);
-    };
-
-    // Call the getCurrentPosition method of the Geolocation API to get the user's location
-    const dataKoor = navigator.geolocation.getCurrentPosition(
-      successCallback,
-      errorCallback
-    );
+    // Call the function to get the user's coordinates
+    getUserCoordinates()
+      .then((coordinates) => {
+        console.log("User coordinates:", coordinates);
+        // Use the coordinates array in your project as needed
+      })
+      .catch((error) => console.log(error));
 
     async function closestRS(value) {
+      console.log(userCoordinates);
       isLoading.value = true;
       // Make a GET request to the API to get hospitals with a specific specialist
       const res = await axios.get(
@@ -1055,22 +1067,12 @@ export default {
         }),
       });
 
-      // let bingMapLayer = new TileLayer({
-      //   visible: true,
-      //   preload: Infinity,
-      //   source: new BingMaps({
-      //     key: BING_MAPS_API_KEY,
-      //     imagerySet: "Road",
-      //   }),
-      // });
-
-      // map.value.addLayer(bingMapLayer);
       let mapboxLayer = new TileLayer({
         visible: true,
         opacity: 0.75,
         preload: Infinity,
         source: new XYZ({
-          url: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q",
+          url: MAPBOX_ACCESS_TOKEN,
           attributions: '© <a href="https://www.mapbox.com/">Mapbox</a>',
           tilePixelRatio: 2,
           projection: "EPSG:3857",
@@ -1106,6 +1108,7 @@ export default {
         }
       );
       isLoading.value = false;
+      console.log(userCoordinates);
     });
     return {
       isLoading,
