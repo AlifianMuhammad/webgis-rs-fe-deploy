@@ -95,6 +95,7 @@
                 target="_blank"
                 class="custom-route-button"
               >
+                <span class="google-maps-text">Open in Google Maps</span>
                 <img
                   src="/route.png"
                   class="custom-direction-icon"
@@ -131,10 +132,17 @@
         <button class="btn btn-success" @click="showAllHospitals">
           Show All Hospital
         </button>
+        <button class="btn btn-primary" @click="toggleMapboxLayer">
+          Switch BaseMap
+        </button>
+        <button class="btn btn-primary" @click="toggleRoadLayer">
+          Toggle Road Layer
+        </button>
       </div>
     </div>
     <div class="map-container">
       <div id="map"></div>
+
       <div class="loading-overlay" v-if="isLoading">
         <span class="loading-spinner">
           <span
@@ -303,7 +311,7 @@
 .green-side {
   width: 50px;
   height: 100px;
-  background-color: #028d6c;
+  background-color: #ffffff;
   border-radius: 0 4px 4px 0;
   display: flex;
   align-items: center;
@@ -336,7 +344,15 @@
 .custom-hospital-details {
   width: 100%;
 }
-
+.google-maps-text {
+  color: darkgrey;
+  margin-top: 7px;
+  margin-right: 10px; /* Adjust the spacing between the text and the route logo */
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
 .custom-hospital-name {
   font-size: 18px;
   font-weight: bold;
@@ -370,7 +386,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: green;
+  background-color: white;
   color: white;
   text-decoration: none;
   padding: 10px 15px;
@@ -378,19 +394,13 @@
   transition: background-color 0.3s ease;
 }
 
-.custom-route-button:hover {
-  background-color: darkgreen;
-}
-
 .custom-direction-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
+  width: 35px;
 }
 
 .direction-icon {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+
   fill: #fff;
 }
 .loading-overlay {
@@ -416,7 +426,15 @@
 .loading-spinner {
   font-size: 3rem; /* Adjust the size of the loading spinner */
 }
-
+.ol-custom-switcher {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 /* Responsive styles */
 @media screen and (max-width: 1197px) {
   .hospital-photo {
@@ -457,9 +475,15 @@ import { onMounted, onUpdated, ref, shallowRef } from "vue";
 // Import OpenLayers libraries
 import Map from "ol/Map";
 import View from "ol/View";
+const mapboxLayer = ref(null);
+const bingMapLayer = ref(null);
+const roadLayer = ref(null);
+const isMapboxVisible = ref(true);
+const isRoadLayerVisible = ref(false);
 import Feature from "ol/Feature";
 import Collection from "ol/Collection";
-import TileLayer from "ol/layer/Tile";
+import { Tile as TileLayer } from "ol/layer";
+
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { BingMaps, Vector } from "ol/source";
@@ -468,6 +492,7 @@ import { GeoJSON } from "ol/format";
 import XYZ from "ol/source/XYZ";
 import {
   FeatureService,
+  TileSuperMapRest,
   GetFeaturesBySQLParameters,
   TransportationAnalystResultSetting,
   TransportationAnalystParameter,
@@ -496,6 +521,7 @@ export default {
   },
   setup() {
     // Declare variables
+    let featureRoad;
     let featureRS;
     let labelVectorLayer;
     let userCoordinates;
@@ -516,11 +542,12 @@ export default {
     const HOSPITAL_FEATURES_SERVICES_URL =
       "https://iserver.supermap.id/iserver/services/data-webgis_rs_server/rest/data/";
 
-    const BING_MAPS_API_KEY =
-      "Aug_jpyeictKv9-blHjr0OJOy-hYRR_5bIWhecGYlywC_F6p0LMvQ0Ye8J95tSJt";
-
+    const ROAD_FEATURES_SERVICES_URL =
+      "https://iserver.supermap.id/iserver/services/map-webgis_rs_osm_road/rest/maps/Jalan_Kota_Semarang_OSM%40webgis_rs_osm_road";
     const NETWORK_DATASET_SERVICE_URL =
       "https://iserver.supermap.id/iserver/services/transportationAnalyst-SpatialDataWebGISRS/rest/networkanalyst/Data_WebGIS_Network@Data_WebGIS";
+    const BING_MAPS_API_KEY =
+      "Aug_jpyeictKv9-blHjr0OJOy-hYRR_5bIWhecGYlywC_F6p0LMvQ0Ye8J95tSJt";
 
     const MAPBOX_ACCESS_TOKEN =
       "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWxpZmlhbm11aGFtbWFkIiwiYSI6ImNsaWNpemZnYjBjYm0zZ21xZWZwdjNvZnkifQ.ryiZUmhKwg56ACLen8zC6Q";
@@ -538,12 +565,20 @@ export default {
       source: new Vector(),
       style: new Style({
         stroke: new Stroke({
-          color: "rgba(22, 160, 133, 1)",
-          width: 7.5,
+          color: "rgba(22, 160, 133, 0.3)",
+          width: 6.5,
         }),
       }),
     });
-
+    const toggleMapboxLayer = () => {
+      isMapboxVisible.value = !isMapboxVisible.value;
+      mapboxLayer.value.setVisible(isMapboxVisible.value);
+      bingMapLayer.value.setVisible(!isMapboxVisible.value);
+    };
+    const toggleRoadLayer = () => {
+      isRoadLayerVisible.value = !isRoadLayerVisible.value;
+      roadLayer.value.setVisible(isRoadLayerVisible.value);
+    };
     async function showAllHospitals() {
       informasiRS.value = [];
       sidebarRS.value = [];
@@ -586,20 +621,20 @@ export default {
         `https://perfect-seal-belt.cyclic.app/rumahsakit/findRS/${value}`
       );
       const selectedHospitals = response.data;
-      console.log(selectedHospitals);
+      // console.log(selectedHospitals);
 
       // Get the IDs of the selected hospitals
       const selectedHospitalIDs = selectedHospitals.data.map(
         (hospital) => hospital.smid
       );
-      console.log(featureRS.features);
+      // console.log(featureRS.features);
       // Filter the list of hospital features to include only those with IDs in the selectedHospitalIDs array
       const selectedHospitalFeatures = featureRS.features.filter((feature) => {
         const smid = feature.properties["SMID"];
         return selectedHospitalIDs.includes(parseInt(smid));
       });
       informasiRS.value = [];
-      console.log(selectedHospitalFeatures);
+      // console.log(selectedHospitalFeatures);
       function convertFeaturesLabel(data) {
         let output = [];
         let i = 0;
@@ -640,7 +675,7 @@ export default {
 
       // Call the function to get an array of features with labels and distance
       const dataSidebar = convertFeaturesLabel(selectedHospitalFeatures);
-      console.log(dataSidebar);
+      // console.log(dataSidebar);
       sidebarRS.value = dataSidebar;
       // Clear the result layer and add the selected hospital features to it
       resultLayer.getSource().clear();
@@ -938,7 +973,7 @@ export default {
             pathLayer
               .getSource()
               .addFeatures(new GeoJSON().readFeatures(result.route)); // adding the features to the source of the pathLayer using the GeoJSON format
-
+            console.log(`pathlayer`, pathLayer);
             const pathLayerExtent = pathLayer.getSource().getExtent(); // getting the extent of the source of the pathLayer
             map.value.getView().fit(pathLayerExtent, {
               duration: 500,
@@ -962,10 +997,10 @@ export default {
         x: userCoordinates[1],
         y: userCoordinates[0],
       };
-      console.log(userPositionString);
+      // console.log(userPositionString);
 
       const singleHospitalObject = [[coordinate[1], coordinate[0]]];
-      console.log(singleHospitalObject);
+      // console.log(singleHospitalObject);
 
       function convertToArrayOfObjects(data) {
         let output = [];
@@ -984,7 +1019,7 @@ export default {
 
       let featuresCoordinatesObject =
         convertToArrayOfObjects(singleHospitalObject);
-      console.log(featuresCoordinatesObject);
+      // console.log(featuresCoordinatesObject);
 
       const resultSetting = new TransportationAnalystResultSetting({
         // Set the properties for the result settings object
@@ -1024,6 +1059,15 @@ export default {
               .getSource()
               .addFeatures(new GeoJSON().readFeatures(result.route)); // adding the features to the source of the pathLayer using the GeoJSON format
 
+            const pathFeature = pathLayer.getSource().getFeatures()[0]; // Assuming only one path feature is returned
+            const pathGeometry = pathFeature.getGeometry();
+
+            if (pathGeometry instanceof ol.geom.LineString) {
+              const pathLength = pathGeometry.getLength();
+              console.log("Path length in meters:", pathLength);
+            } else {
+              console.log("Path is not a LineString geometry.");
+            }
             const pathLayerExtent = pathLayer.getSource().getExtent(); // getting the extent of the source of the pathLayer
             map.value.getView().fit(pathLayerExtent, {
               duration: 500,
@@ -1062,7 +1106,7 @@ export default {
         }),
       });
 
-      let mapboxLayer = new TileLayer({
+      mapboxLayer.value = new TileLayer({
         visible: true,
         opacity: 0.75,
         preload: Infinity,
@@ -1075,9 +1119,17 @@ export default {
           maxZoom: 20,
         }),
       });
+      bingMapLayer.value = new TileLayer({
+        visible: !isMapboxVisible.value,
+        preload: Infinity,
+        source: new BingMaps({
+          key: BING_MAPS_API_KEY,
+          imagerySet: "Road",
+        }),
+      });
 
-      map.value.addLayer(mapboxLayer);
-      map.value.addLayer(resultLayer);
+      map.value.addLayer(mapboxLayer.value);
+      map.value.addLayer(bingMapLayer.value);
 
       // Define parameters for querying features
       const sqlParam = new GetFeaturesBySQLParameters({
@@ -1102,12 +1154,28 @@ export default {
           featureRS = serviceResult.result.features;
         }
       );
+      roadLayer.value = new TileLayer({
+        source: new TileSuperMapRest({
+          url: ROAD_FEATURES_SERVICES_URL,
+          wrapX: true,
+        }),
+        projection: "EPSG:4326",
+        visible: isRoadLayerVisible.value,
+        style: new Style({
+          stroke: new Stroke({
+            color: "red", // Set the color of the road
+            width: 0.5, // Set the width of the road
+          }),
+        }),
+      });
+      map.value.addLayer(roadLayer.value);
+      map.value.addLayer(resultLayer);
       isLoading.value = false;
-      console.log(userCoordinates);
     });
     return {
       isLoading,
       featureRS,
+
       spesialisList,
       spesialisListValue,
       rumahSakitListValue,
@@ -1117,6 +1185,8 @@ export default {
       closestRS,
       logClickedCoordinate,
       showAllHospitals,
+      toggleMapboxLayer,
+      toggleRoadLayer,
     };
   },
 };
