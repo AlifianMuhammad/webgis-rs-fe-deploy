@@ -565,7 +565,7 @@ export default {
       source: new Vector(),
       style: new Style({
         stroke: new Stroke({
-          color: "rgba(22, 160, 133, 0.3)",
+          color: "rgba(22, 160, 133, 0.8)",
           width: 6.5,
         }),
       }),
