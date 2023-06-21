@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="sidebar">
-      <div class="sidebar-header">
+      <div class="sidebar-header" @click="showAllHospitals">
         <h1 class="sidebar-title">WebGIS Rumah Sakit</h1>
         <p class="sidebar-subtitle">Kota Semarang, Jawa Tengah - Indonesia</p>
       </div>
@@ -11,7 +11,7 @@
           v-for="(rs, index) in informasiRS"
           :key="index"
           class="card"
-          @click="logClickedCoordinate(rs.koordinat)"
+          @click="showRouteNetwork(rs.koordinat)"
         >
           <div class="card-body">
             <div class="hospital-card">
@@ -45,7 +45,7 @@
           v-for="(rs, index) in sidebarRS"
           :key="index"
           class="card"
-          @click="logClickedCoordinate(rs.koordinat)"
+          @click="showRouteNetwork(rs.koordinat)"
         >
           <div class="custom-card-body">
             <div class="custom-hospital-card">
@@ -132,17 +132,30 @@
         <button class="btn btn-success" @click="showAllHospitals">
           Show All Hospital
         </button>
-        <button class="btn btn-primary" @click="toggleMapboxLayer">
+        <!-- <button class="btn btn-primary" @click="toggleMapboxLayer">
           Switch BaseMap
         </button>
         <button class="btn btn-primary" @click="toggleRoadLayer">
           Toggle Road Layer
-        </button>
+        </button> -->
       </div>
     </div>
     <div class="map-container">
       <div id="map"></div>
-
+      <button class="switch-basemap-bottom-left" @click="locateMe">
+        <img
+          src="/gps.png"
+          class="switch-basemap-icon"
+          alt="Switch Basemap Icon"
+        />
+      </button>
+      <button class="switch-basemap-top-right" @click="toggleMapboxLayer">
+        <img
+          src="/basemap.png"
+          class="switch-basemap-icon"
+          alt="Switch Basemap Icon"
+        />
+      </button>
       <div class="loading-overlay" v-if="isLoading">
         <span class="loading-spinner">
           <span
@@ -169,6 +182,7 @@
 }
 
 .map-container {
+  position: relative;
   width: 75%;
   height: 100vh;
 }
@@ -177,7 +191,49 @@
   width: 100%;
   height: 100%;
 }
+.switch-basemap-top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
 
+.switch-basemap-bottom-left {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+.button-container {
+  position: absolute;
+}
+
+.switch-basemap-top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.switch-basemap-bottom-left {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+.switch-basemap-top-right,
+.switch-basemap-bottom-left {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  padding: 0;
+  outline: none; /* Remove focus/active state outline */
+}
+
+.switch-basemap-icon {
+  width: 20px;
+}
 .sidebar {
   width: 25%;
   height: 100vh;
@@ -188,7 +244,19 @@
   align-items: flex-start;
   overflow-y: auto;
 }
+.switch-basemap {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 10px;
+  transition: background-color 0.3s ease;
+}
 
+.switch-basemap-icon {
+  width: 30px;
+}
 .sidebar > div {
   width: 100%;
 }
@@ -242,6 +310,7 @@
   margin-bottom: 10px;
   color: #028d6c;
   font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: bold;
   font-size: 20px;
 }
 .card {
@@ -521,7 +590,7 @@ export default {
   },
   setup() {
     // Declare variables
-    let featureRoad;
+    let eventLayer;
     let featureRS;
     let labelVectorLayer;
     let userCoordinates;
@@ -570,6 +639,49 @@ export default {
         }),
       }),
     });
+
+    async function locateMe() {
+      isLoading.value = true;
+
+      // Remove all layers (path, result, user)
+      map.value.removeLayer(labelVectorLayer);
+
+      map.value.removeLayer(eventLayer);
+      map.value.removeLayer(eventLayer);
+
+      // Create event point
+      const eventPoint = new Point([userCoordinates[1], userCoordinates[0]]);
+
+      // Create event feature and style
+      const eventFeature = new Feature(eventPoint);
+      const eventIcon = new Style({
+        image: new Icon({
+          src: "/User.png",
+        }),
+      });
+
+      // Create event source and layer
+      const eventSource = new Vector({
+        features: [eventFeature],
+      });
+      eventLayer = new VectorLayer({
+        source: eventSource,
+      });
+      eventLayer.setStyle(eventIcon);
+
+      // Add event layer to the map
+      map.value.addLayer(eventLayer);
+
+      // Set map center to event point with zoom level 14
+      map.value.getView().setCenter(eventPoint.getCoordinates());
+      map.value.getView().animate({
+        zoom: 18,
+        duration: 500,
+      });
+      isLoading.value = false;
+
+      isLoading.value = false;
+    }
     const toggleMapboxLayer = () => {
       isMapboxVisible.value = !isMapboxVisible.value;
       mapboxLayer.value.setVisible(isMapboxVisible.value);
@@ -580,6 +692,7 @@ export default {
       roadLayer.value.setVisible(isRoadLayerVisible.value);
     };
     async function showAllHospitals() {
+      map.value.removeLayer(eventLayer);
       informasiRS.value = [];
       sidebarRS.value = [];
       isLoading.value = true;
@@ -610,6 +723,7 @@ export default {
     }
 
     async function findRS(value) {
+      map.value.removeLayer(eventLayer);
       isLoading.value = true;
       // Remove the path layers from the map
       console.log(userCoordinates);
@@ -753,6 +867,8 @@ export default {
     );
 
     async function closestRS(value) {
+      map.value.removeLayer(eventLayer);
+
       isLoading.value = true;
       // Make a GET request to the API to get hospitals with a specific specialist
       const res = await axios.get(
@@ -903,7 +1019,7 @@ export default {
       });
       console.log(eventSource);
       // Create a vector layer object using the vector source object
-      const eventLayer = new VectorLayer({
+      eventLayer = new VectorLayer({
         source: eventSource,
       });
 
@@ -986,10 +1102,12 @@ export default {
       );
 
       map.value.addLayer(eventLayer); // adding the eventLayer to the map
+
       isLoading.value = false;
     }
 
-    function logClickedCoordinate(coordinate) {
+    function showRouteNetwork(coordinate) {
+      map.value.removeLayer(eventLayer);
       isLoading.value = true;
       map.value.removeLayer(pathLayer);
       pathLayer.getSource().clear();
@@ -997,7 +1115,31 @@ export default {
         x: userCoordinates[1],
         y: userCoordinates[0],
       };
-      // console.log(userPositionString);
+      const eventPoint = new Point([userCoordinates[1], userCoordinates[0]]);
+      // Create a string object to store the coordinates
+
+      // Create a feature object using the point object
+      const eventFeature = new Feature(eventPoint);
+
+      // Create a style object for the event layer icon
+      const eventIcon = new Style({
+        image: new Icon({
+          src: "/User.png",
+        }),
+      });
+      console.log(eventFeature);
+      // Create a vector source object using the feature object
+      const eventSource = new Vector({
+        features: [eventFeature],
+      });
+      console.log(eventSource);
+      // Create a vector layer object using the vector source object
+      eventLayer = new VectorLayer({
+        source: eventSource,
+      });
+      // Set the style for the event layer using the eventIcon style
+      eventLayer.setStyle(eventIcon);
+      map.value.addLayer(eventLayer);
 
       const singleHospitalObject = [[coordinate[1], coordinate[0]]];
       // console.log(singleHospitalObject);
@@ -1078,6 +1220,7 @@ export default {
           });
         }
       );
+
       isLoading.value = false;
     }
 
@@ -1183,10 +1326,11 @@ export default {
       sidebarRS,
       findRS,
       closestRS,
-      logClickedCoordinate,
+      showRouteNetwork,
       showAllHospitals,
       toggleMapboxLayer,
       toggleRoadLayer,
+      locateMe,
     };
   },
 };
