@@ -199,8 +199,8 @@
 
 .switch-basemap-bottom-left {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
+  top: 60px;
+  right: 10px;
 }
 .button-container {
   position: absolute;
@@ -214,8 +214,8 @@
 
 .switch-basemap-bottom-left {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
+  top: 60px;
+  right: 10px;
 }
 .switch-basemap-top-right,
 .switch-basemap-bottom-left {
@@ -552,7 +552,7 @@ const isRoadLayerVisible = ref(false);
 import Feature from "ol/Feature";
 import Collection from "ol/Collection";
 import { Tile as TileLayer } from "ol/layer";
-
+import ScaleLine from "ol/control/ScaleLine";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { BingMaps, Vector } from "ol/source";
@@ -1248,6 +1248,10 @@ export default {
           projection: "EPSG:4326",
         }),
       });
+      const scaleLineControl = new ScaleLine({
+        units: "metric", // Atur satuan skala menjadi metrik
+      });
+      map.value.addControl(scaleLineControl);
 
       mapboxLayer.value = new TileLayer({
         visible: true,
